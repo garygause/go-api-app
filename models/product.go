@@ -45,6 +45,29 @@ func (p Product) Save() error {
 	return err
 }
 
+func (p Product) Update() error {
+	query := `
+	UPDATE products 
+	SET title=?, description=?, price=?, status=?, store_id=?
+	WHERE
+	id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		//panic("Prepare failed")
+		return err
+	}
+
+	defer stmt.Close()
+	
+	_, err = stmt.Exec(p.Title, p.Description, p.Price, p.Status, p.StoreID, p.ID)
+	if err != nil {
+		panic(err)
+		//return err
+	}
+	return err
+}
+
 func GetProductById(id int64) (*Product, error) {
 	query := "SELECT * FROM products WHERE id = ?"
 	row := db.DB.QueryRow(query, id)

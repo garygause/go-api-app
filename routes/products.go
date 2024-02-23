@@ -48,3 +48,30 @@ func createProduct(context *gin.Context) {
 	
 	context.JSON(http.StatusCreated, gin.H{"message": "Product created.", "product": product})
 }
+
+func updateProduct(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Product id is invalid."})
+		return
+	}
+	_, err = models.GetProductById(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve Product."})
+		return
+	}
+
+	var p models.Product
+	err = context.ShouldBindJSON(&p)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
+		return
+	}
+	p.ID = id
+	err = p.Update()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update Product."})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Product updated."})
+}
