@@ -1,6 +1,6 @@
-# nxc-api
+# go-api-app
 
-NXC api code written in Go.
+Example API app written in Go.
 
 # Stack
 
@@ -11,13 +11,13 @@ Go, Gin, Docker
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:garygause/nxc-api.git
+git clone git@github.com:garygause/go-api-app.git
 ```
 
 or
 
 ```bash
-git clone https://github.com/garygause/nxc-api.git
+git clone https://github.com/garygause/go-api-app.git
 ```
 
 2. Install dependencies:

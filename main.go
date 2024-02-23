@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/garygause/nxc-api/models"
+	"github.com/garygause/go-api-app/models"
 	"github.com/gin-gonic/gin"
 )
 
