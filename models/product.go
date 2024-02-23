@@ -1,24 +1,78 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"github.com/garygause/go-api-app/db"
+)
 
 type Product struct {
-	ID int
+	ID int64
 	Title string `binding:"required"`
 	Description string
 	Price float64
-	CreatedAt time.Time
 	Status string
+	CreatedAt time.Time
 	StoreID int
 }
 
 var products = []Product{}
 
-func (p Product) Save() {
-	// TODO: save to db
-	products = append(products, p)
+func (p Product) Save() error {
+	query := `
+	INSERT INTO products 
+	(title, description, price, status, store_id, createdAt) 
+	VALUES
+	(?, ?, ?, ?, ?, ?)`
+
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		panic("Prepare failed")
+		//return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Exec(p.Title, p.Description, p.Price, p.Status, p.StoreID, time.Now())
+	if err != nil {
+		panic(err)
+		//return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		panic("last id failed")
+	}
+	p.ID = id
+	return err
 }
 
-func GetAllProducts() []Product {
-	return products
+func GetProductById(id int64) (*Product, error) {
+	query := "SELECT * FROM products WHERE id = ?"
+	row := db.DB.QueryRow(query, id)
+	var p Product
+	err := row.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+func GetAllProducts() ([]Product, error) {
+	query := "SELECT * FROM products"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+  defer rows.Close()
+	var products []Product
+	for rows.Next() {
+		var p Product
+		err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
 }
