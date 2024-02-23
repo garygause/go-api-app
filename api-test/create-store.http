@@ -1,0 +1,9 @@
+POST http://localhost:8000/stores
+content-type: application/json
+
+{
+  "title": "Test Store",
+  "description": "Test description",
+  "status": "draft",
+  "userId": 1
+}

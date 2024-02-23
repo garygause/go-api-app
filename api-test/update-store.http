@@ -1,0 +1,9 @@
+PUT http://localhost:8000/stores/1
+content-type: application/json
+
+{
+  "title": "Update Test Store",
+  "description": "Test description",
+  "status": "draft",
+  "userId": 1
+}

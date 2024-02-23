@@ -1,0 +1,9 @@
+PUT http://localhost:8000/users/1
+content-type: application/json
+
+{
+  "name": "Update Test User",
+  "email": "Test email",
+  "password": "test",
+  "status": "draft",
+}
