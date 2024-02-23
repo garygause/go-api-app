@@ -75,3 +75,23 @@ func updateProduct(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Product updated."})
 }
+
+
+func deleteProduct(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Product id is invalid."})
+		return
+	}
+	product, err := models.GetProductById(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve Product."})
+		return
+	}
+	err = product.Delete()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete Product."})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Product deleted."})
+}

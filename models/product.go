@@ -59,12 +59,22 @@ func (p Product) Update() error {
 	}
 
 	defer stmt.Close()
-	
+
 	_, err = stmt.Exec(p.Title, p.Description, p.Price, p.Status, p.StoreID, p.ID)
 	if err != nil {
 		panic(err)
 		//return err
 	}
+	return err
+}
+
+func (p Product) Delete() error {
+	query := "DELETE FROM products WHERE id = ?"
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return nil
+	}
+	_, err = stmt.Exec(p.ID)
 	return err
 }
 
@@ -99,3 +109,4 @@ func GetAllProducts() ([]Product, error) {
 	}
 	return products, nil
 }
+
