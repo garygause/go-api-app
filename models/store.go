@@ -16,8 +16,6 @@ type Store struct {
 	UserID int64 `binding:"required"`
 }
 
-var stores = []Store{}
-
 func (s *Store) Save() error {
 	query := `
 	INSERT INTO stores 
@@ -44,7 +42,7 @@ func (s *Store) Save() error {
 	return err
 }
 
-func (s Store) Update() error {
+func (s *Store) Update() error {
 	query := `
 	UPDATE stores 
 	SET title=?, description=?, status=?, user_id=?
@@ -66,6 +64,11 @@ func (s Store) Update() error {
 	return err
 }
 
+/*
+	Delete 
+
+	delete the store and all associated products
+*/
 func (s Store) Delete() error {
 	query := "DELETE FROM stores WHERE id = ?"
 	stmt, err := db.DB.Prepare(query)
@@ -79,26 +82,30 @@ func (s Store) Delete() error {
 func GetStoreById(id int64) (*Store, error) {
 	query := "SELECT * FROM stores WHERE id = ?"
 	row := db.DB.QueryRow(query, id)
-	var s Store
-	err := row.Scan(&s.ID, &s.Title, &s.Description, &s.Status, &s.Status, &s.CreatedAt, &s.UserID)
+	s := &Store{}
+	err := row.Scan(&s.ID, &s.Title, &s.Description, &s.Status, &s.CreatedAt, &s.UserID)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
-	return &s, nil
+	return s, nil
 }
 
-func GetAllStores() ([]Store, error) {
-	query := "SELECT * FROM stores"
+func GetAllStores() ([]*Store, error) {
+	query := `
+	SELECT 
+	s.id, s.title, s.description, s.status, s.createdAt, s.user_id
+	FROM stores AS s`
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
   defer rows.Close()
-	var stores []Store
+	var stores []*Store
 	for rows.Next() {
-		var s Store
-		err := rows.Scan(&s.ID, &s.Title, &s.Description, &s.Status, &s.Status, &s.CreatedAt, &s.UserID)
+		s := &Store{}
+		err := rows.Scan(&s.ID, &s.Title, &s.Description, &s.Status, &s.CreatedAt, &s.UserID)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err

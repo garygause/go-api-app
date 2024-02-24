@@ -1,1 +1,2 @@
 DELETE http://localhost:8000/users/2
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJleHBpcmVzIjoxNzA4ODA4ODcxLCJ1c2VySWQiOjJ9.7yIBV7_vmG5dxlfXZRYOTolNDzm9m5n5cKxf87NgLa8

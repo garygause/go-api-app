@@ -79,6 +79,11 @@ func (u User) Update() error {
 	return err
 }
 
+/*
+	Delete 
+
+	delete the user and all associated stores, products
+*/
 func (u User) Delete() error {
 	query := "DELETE FROM users WHERE id = ?"
 	stmt, err := db.DB.Prepare(query)

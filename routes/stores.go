@@ -111,5 +111,6 @@ func deleteStore(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete Store."})
 		return
 	}
+
 	context.JSON(http.StatusOK, gin.H{"message": "Store deleted."})
 }

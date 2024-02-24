@@ -10,7 +10,8 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", "api.db")
+	DB, err = sql.Open("sqlite3", "api.db?_foreign_keys=on")
+	
 	if err != nil {
 		panic("Could not connect to db.")
 	}
@@ -46,8 +47,7 @@ func createTables() {
 		status TEXT NOT NULL,
 		createdAt DATETIME NOT NULL,
 		user_id INTEGER NOT NULL,
-		FOREIGN KEY (user_id) REFERENCES users(id) 
-
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 	)
 	`
 	_, err = DB.Exec(createStoresTable)
@@ -64,7 +64,7 @@ func createTables() {
 		status TEXT NOT NULL,
 		createdAt DATETIME NOT NULL,
 		store_id INTEGER NOT NULL,
-		FOREIGN KEY (store_id) REFERENCES stores(id) 
+		FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
 	)
 	`
 	_, err = DB.Exec(createProductsTable)

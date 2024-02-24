@@ -14,12 +14,11 @@ type Product struct {
 	Price float64
 	Status string
 	CreatedAt time.Time
-	StoreID int
+	StoreID int64
+	Store *Store
 }
 
-var products = []Product{}
-
-func (p Product) Save() error {
+func (p *Product) Save() error {
 	query := `
 	INSERT INTO products 
 	(title, description, price, status, store_id, createdAt) 
@@ -31,9 +30,11 @@ func (p Product) Save() error {
 		panic("Prepare failed")
 		//return err
 	}
+	fmt.Println("Prepare succeeded")
 	defer stmt.Close()
 	result, err := stmt.Exec(p.Title, p.Description, p.Price, p.Status, p.StoreID, time.Now())
 	if err != nil {
+		fmt.Println("Exec error")
 		panic(err)
 		//return err
 	}
@@ -79,34 +80,76 @@ func (p Product) Delete() error {
 }
 
 func GetProductById(id int64) (*Product, error) {
-	query := "SELECT * FROM products WHERE id = ?"
+	query := `
+	SELECT p.*, s.user_id 
+	FROM products AS p
+	INNER JOIN stores AS s ON p.store_id = s.id
+	WHERE id = ?
+	`
 	row := db.DB.QueryRow(query, id)
-	var p Product
-	err := row.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID)
+	p := &Product{}
+	s := &Store{}
+	err := row.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID, &s.UserID)
 	if err != nil {
 		return nil, err
 	}
-	return &p, nil
+	p.Store = s
+	return p, nil
 }
 
-func GetAllProducts() ([]Product, error) {
-	query := "SELECT * FROM products"
+func GetAllProducts() ([]*Product, error) {
+	query := `
+	SELECT p.*, s.user_id 
+	FROM products AS p
+	INNER JOIN stores AS s ON p.store_id = s.id
+	`
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
   defer rows.Close()
-	var products []Product
+	var products []*Product
 	for rows.Next() {
-		var p Product
-		err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID)
+		p := &Product{}
+		s := &Store{}
+		err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID, &s.UserID)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
+		p.Store = s
 		products = append(products, p)
 	}
 	return products, nil
 }
 
+func GetAllProductsByStore(storeId int64) ([]*Product, error) {
+	query := `
+	SELECT p.*, s.user_id 
+	FROM products AS p
+	INNER JOIN stores AS s ON p.store_id = s.id
+	WHERE p.store_id = ?
+	`
+
+	rows, err := db.DB.Query(query, storeId)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+  defer rows.Close()
+
+	var products []*Product
+	for rows.Next() {
+		p := &Product{}
+		s := &Store{}
+		err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Price, &p.Status, &p.CreatedAt, &p.StoreID, &s.UserID)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		p.Store = s
+		products = append(products, p)
+	}
+	return products, nil
+}

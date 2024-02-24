@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,13 +33,22 @@ func getProducts(context *gin.Context) {
 }
 
 func createProduct(context *gin.Context) {
-	//userId := context.GetInt64("userId")
+	userId := context.GetInt64("userId")
 
 	var product models.Product
 	err := context.ShouldBindJSON(&product)
 	
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
+		return
+	}
+
+	// verify they are authorized for store
+	store, err := models.GetStoreById(product.StoreID)
+			fmt.Println("*****HERE*****")
+	fmt.Println(store)
+	if store.UserID != userId || err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		return
 	}
 
@@ -52,7 +62,7 @@ func createProduct(context *gin.Context) {
 }
 
 func updateProduct(context *gin.Context) {
-		//userId := context.GetInt64("userId")
+	userId := context.GetInt64("userId")
 
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
@@ -71,6 +81,14 @@ func updateProduct(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
 		return
 	}
+
+	// verify they are authorized for store
+	store, err := models.GetStoreById(p.StoreID)
+	if store.UserID != userId || err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
 	p.ID = id
 	err = p.Update()
 	if err != nil {
@@ -82,7 +100,7 @@ func updateProduct(context *gin.Context) {
 
 
 func deleteProduct(context *gin.Context) {
-		//userId := context.GetInt64("userId")
+	userId := context.GetInt64("userId")
 
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
@@ -94,6 +112,14 @@ func deleteProduct(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve Product."})
 		return
 	}
+
+	// verify they are authorized for store
+	store, err := models.GetStoreById(product.StoreID)
+	if store.UserID != userId || err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
 	err = product.Delete()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete Product."})

@@ -1,11 +1,11 @@
 POST http://localhost:8000/products
 content-type: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJleHBpcmVzIjoxNzA4NzU1MjczLCJ1c2VySWQiOjF9.aCcV6QoKYWlUGubEcIwuzP6W-qFywYxpD0ysqGkQ4UI
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJleHBpcmVzIjoxNzA4ODA4ODcxLCJ1c2VySWQiOjJ9.7yIBV7_vmG5dxlfXZRYOTolNDzm9m5n5cKxf87NgLa8
 
 {
   "title": "Test Product",
   "description": "Test description",
   "price": 4.25,
   "status": "draft",
-  "storeId": 1
+  "storeId": 2
 }
