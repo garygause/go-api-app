@@ -4,7 +4,7 @@ Example API app written in Go.
 
 # Stack
 
-Go, Gin, Docker
+Go, Gin, JWT, SQLite3
 
 # Usage
 
@@ -24,6 +24,7 @@ git clone https://github.com/garygause/go-api-app.git
 
 ```bash
 go mod tidy
+go run .
 ```
 
 # Tests
@@ -34,7 +35,18 @@ Tests are located in api-test folder. To run these tests, you need the Rest exte
 
 - POST /signup
 - POST /login
-- GET /product
-- POST /product
-- PUT /product
-- DELETE /product
+- GET /users
+- GET /users/<id>
+- POST /users
+- PUT /users/<id>
+- DELETE /users/<id>
+- GET /stores
+- GET /stores/<id>
+- POST /stores
+- PUT /stores/<id>
+- DELETE /stores/<id>
+- GET /products
+- GET /products/<id>
+- POST /products
+- PUT /products/<id>
+- DELETE /product/<id>
