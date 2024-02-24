@@ -32,6 +32,8 @@ func getStores(context *gin.Context) {
 }
 
 func createStore(context *gin.Context) {
+	userId := context.GetInt64("userId")
+
 	var store models.Store
 	err := context.ShouldBindJSON(&store)
 	
@@ -40,6 +42,7 @@ func createStore(context *gin.Context) {
 		return
 	}
 
+	store.UserID = userId
 	err = store.Save()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not save Store."})
@@ -50,14 +53,21 @@ func createStore(context *gin.Context) {
 }
 
 func updateStore(context *gin.Context) {
+	userId := context.GetInt64("userId")
+
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Store id is invalid."})
 		return
 	}
-	_, err = models.GetStoreById(id)
+	store, err := models.GetStoreById(id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve Store."})
+		return
+	}
+
+	if store.UserID != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		return
 	}
 
@@ -78,6 +88,8 @@ func updateStore(context *gin.Context) {
 
 
 func deleteStore(context *gin.Context) {
+	userId := context.GetInt64("userId")
+
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Store id is invalid."})
@@ -88,6 +100,12 @@ func deleteStore(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve Store."})
 		return
 	}
+
+	if store.UserID != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
 	err = store.Delete()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete Store."})

@@ -1,15 +1,17 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/garygause/go-api-app/db"
+	"github.com/garygause/go-api-app/utils"
 )
 
 type User struct {
 	ID int64
-	Name string `binding:"required"`
+	Name string 
 	Email string `binding:"required"`
 	Password string `binding:"required"`
 	Status string
@@ -31,7 +33,13 @@ func (u User) Save() error {
 		//return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(u.Name, u.Email, u.Password, u.Status, time.Now())
+
+	password, err := utils.HashPassword(u.Password)
+	if err != nil {
+		fmt.Println(err)
+		//return err
+	}
+	result, err := stmt.Exec(u.Name, u.Email, password, u.Status, time.Now())
 	if err != nil {
 		panic(err)
 		//return err
@@ -58,8 +66,12 @@ func (u User) Update() error {
 	}
 
 	defer stmt.Close()
-
-	_, err = stmt.Exec(u.Name, u.Email, u.Password, u.Status, u.ID)
+	password, err := utils.HashPassword(u.Password)
+	if err != nil {
+		fmt.Println(err)
+		// return err
+	}
+	_, err = stmt.Exec(u.Name, u.Email, password, u.Status, u.ID)
 	if err != nil {
 		panic(err)
 		//return err
@@ -75,6 +87,24 @@ func (u User) Delete() error {
 	}
 	_, err = stmt.Exec(u.ID)
 	return err
+}
+
+func (u *User) AuthenticateUser() error {
+	query := "SELECT id, password FROM users WHERE email = ?"
+	row := db.DB.QueryRow(query, u.Email)
+
+	var password string
+	err := row.Scan(&u.ID, &password)
+	if err != nil {
+		return errors.New("invalid credentials")
+	}
+
+	isValid := utils.CheckPassword(password, u.Password)
+	if !isValid {
+		return errors.New("invalid credentials")
+	}
+
+	return nil
 }
 
 func GetUserById(id int64) (*User, error) {

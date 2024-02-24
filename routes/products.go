@@ -32,6 +32,8 @@ func getProducts(context *gin.Context) {
 }
 
 func createProduct(context *gin.Context) {
+	//userId := context.GetInt64("userId")
+
 	var product models.Product
 	err := context.ShouldBindJSON(&product)
 	
@@ -50,6 +52,8 @@ func createProduct(context *gin.Context) {
 }
 
 func updateProduct(context *gin.Context) {
+		//userId := context.GetInt64("userId")
+
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Product id is invalid."})
@@ -78,6 +82,8 @@ func updateProduct(context *gin.Context) {
 
 
 func deleteProduct(context *gin.Context) {
+		//userId := context.GetInt64("userId")
+
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Product id is invalid."})

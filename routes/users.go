@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/garygause/go-api-app/utils"
+
 	"github.com/garygause/go-api-app/models"
 	"github.com/gin-gonic/gin"
 )
@@ -76,7 +78,6 @@ func updateUser(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "User updated."})
 }
 
-
 func deleteUser(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
@@ -94,4 +95,26 @@ func deleteUser(context *gin.Context) {
 		return
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "User deleted."})
+}
+
+func loginUser(context *gin.Context) {
+	var user models.User
+	err := context.ShouldBindJSON(&user)
+	
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
+		return
+	}	
+
+	err = user.AuthenticateUser()
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+	token, err := utils.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not generate token."})
+
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "login successful", "token": token})
 }

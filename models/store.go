@@ -18,7 +18,7 @@ type Store struct {
 
 var stores = []Store{}
 
-func (s Store) Save() error {
+func (s *Store) Save() error {
 	query := `
 	INSERT INTO stores 
 	(title, description, status, createdAt, user_id) 
